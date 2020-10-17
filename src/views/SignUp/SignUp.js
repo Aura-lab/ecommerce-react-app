@@ -11,7 +11,7 @@ import { withAuth } from '../../components/Authentication/Authentication'
 import FormFeedback from '../../form/FormFeedback';
 import request from '../../utils/request';
 import { registUrl } from '../../config/url';
-import {CURRENT_USER} from '../../constants/applicationConstants'
+//import {CURRENT_USER} from '../../constants/applicationConstants'
 
 const useStyles = makeStyles((theme) => ({
   form: {

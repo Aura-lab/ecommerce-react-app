@@ -1,5 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch } from "react-router-dom";
+import CssBaseline from '@material-ui/core/CssBaseline';
+import { ThemeProvider } from '@material-ui/core/styles';
+import theme from './theme';
 import  SignIn from './views/SignIn/SignIn';
 import SignUp from './views/SignUp/SignUp';
 import MyProfile from './views/MyProfile/MyProfile';
@@ -15,9 +18,11 @@ import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 
 export default function App() {
   return (
+    <ThemeProvider theme={theme}>
+    <CssBaseline />
     <BrowserRouter>
-     <AppAppBar />
       <AuthenticationManger>
+      <AppAppBar />
       
       <Switch>
       <Route exact path="/" component={HomePage} />
@@ -32,7 +37,7 @@ export default function App() {
    
 
       </AuthenticationManger>
-
     </BrowserRouter>
+    </ThemeProvider>
   );
 }

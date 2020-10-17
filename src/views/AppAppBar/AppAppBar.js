@@ -1,4 +1,6 @@
 import React, {useState} from 'react';
+import {useHistory} from 'react-router-dom';
+//useLocation
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { withStyles, useTheme} from '@material-ui/core/styles';
@@ -18,13 +20,8 @@ import Account from '@material-ui/icons/AccountBoxSharp';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from  '../../components/AppBar/AppBar';
 import Toolbar, { styles as toolbarStyles } from '../../components/Toolbar/Toolbar';
-
-import {useLocation, useHistory} from 'react-router-dom';
-// import { signOutUrl } from '../../config/url';
-// import request from '../../utils/request';
-import {CURRENT_USER} from '../../constants/applicationConstants'
-
-// import {getInitAuthData as authInfo} from '../../utils/help';
+import {withAuth} from '../../components/Authentication/Authentication'
+import { Guard } from '../../components/Authentication/Authentication'
 
 const drawerWidth = 240;
 
@@ -92,17 +89,12 @@ const styles = (theme) => ({
   },
 });
 
-function AppAppBar(props) {
+function AppAppBar({logout, isAuthenticated,classes,...rest}) {
   const history = useHistory();
-  const { classes } = props;
   const theme = useTheme();
-  const location = useLocation();
-  //debugger
-
-  //const authData = authInfo();
- 
+  //const location = useLocation();
   const [open, setOpen] = useState(false);
-  const pathLocation = ['/profile','/setting','/zodiac']
+  //const pathLocation = ['/profile','/setting','/zodiac']
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -118,23 +110,9 @@ function AppAppBar(props) {
     history.push(`/${e.target.textContent}`)
   }
  
-  const logout = async () => {
-    try {
-      const currentUserStr = localStorage.getItem(CURRENT_USER);
-      if(currentUserStr) {
-        //const currentUserData  = JSON.parse(currentUserStr);
-        // const resp = await request(signOutUrl, {
-        //   method: 'POST',
-        //   body: JSON.stringify(currentUserData.currentUser)
-        // })
-        localStorage.removeItem(CURRENT_USER);
-        history.push('/signin');
-      }
-     
-      
-    } catch (error) {
-    }
-    
+  const onLogout = async () => {
+    const result = await logout();
+    if(result) history.push('/signin');
   }
    
   
@@ -142,6 +120,7 @@ function AppAppBar(props) {
     <div>
       <AppBar position="fixed">
         <Toolbar className={classes.toolbar}>
+          <Guard allowed={['admin']}> 
           <div className={classes.left} >
             <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={handleDrawerOpen}>
               <MenuIcon />
@@ -171,6 +150,7 @@ function AppAppBar(props) {
               </List>
             </Drawer>
           </div>
+          </Guard>
           <Link
             variant="h6"
             underline="none"
@@ -181,21 +161,21 @@ function AppAppBar(props) {
             {'ecommerce platform'}
           </Link>
           <div className={classes.right}>
-          {pathLocation.includes(location.pathname) && <Link
+          {isAuthenticated && <Link
               color="inherit"
               variant="button"
               underline="none"
-              className={ clsx(classes.rightLink, {[classes.linkSecondary] : pathLocation.includes(location.pathname)})}
-              onClick={logout}
+              className={ clsx(classes.rightLink, {[classes.linkSecondary] : isAuthenticated})}
+              onClick={onLogout}
             >
               {'Logout'}
             </Link>}
-            {(location.pathname === '/signin' || location.pathname === '/signup')  && <>
+            {(!isAuthenticated)  && <>
               <Link
               color="inherit"
               variant="h6"
               underline="none"
-              className={ clsx(classes.rightLink, {[classes.linkSecondary] : location.pathname === '/signin'})}
+              className={ clsx(classes.rightLink, {[classes.linkSecondary] :!isAuthenticated})}
               href="/signin"
             >
               {'Sign In'}
@@ -203,7 +183,7 @@ function AppAppBar(props) {
             <Link
               variant="h6"
               underline="none"
-              className={clsx(classes.rightLink, {[classes.linkSecondary] : location.pathname === '/signup'})}
+              className={clsx(classes.rightLink, {[classes.linkSecondary] : !isAuthenticated})}
               href="/signup"
             >
               {'Sign Up'}
@@ -222,4 +202,4 @@ AppAppBar.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(AppAppBar);
+export default withAuth(withStyles(styles)(AppAppBar));
